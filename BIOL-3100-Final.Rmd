@@ -26,7 +26,8 @@ The data generated for this project was using an R package called CommunityAssem
 To spatially arrange the data, a python package called DeepInsight was used. It employs dimensionality reduction techniques to produce images of the microbial community data. It goes through every row in an input matrix and produces an image representation of it. 
 
 ![Image1](./media/Graph_1.png)
-![Image](./media/Figure_2.png)
+![Image2](./media/Graph_2.png)
+![Image2](./media/Graph_3.png)
 
 These Images were saved as NumPy arrays and loaded in R. The first step involving R in this project was the loading and pre-processing of the data. The packages used in R to develop this network are based on Python libraries so they are a little bit different to work with compared to your typical R package. 
 
