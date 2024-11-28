@@ -14,7 +14,7 @@ This purpose of this project is to look at, and interpret a data-set collected b
 
 ## Background
 
-This project emerged from research on the microbiomes of Mangroves in Southeast Asia. 
+This data is taken from the Institute For Health Metrics and Evaluation. The data was collected to look at the Global Burden of Disease (GBD). This data was the largest and most complete study dont in order to determine the health loss across the world over time so health systems could be improved and effectivly eliminate disparities. 
 
 
 ## Data
@@ -23,9 +23,9 @@ The data generated for this project was using an R package called CommunityAssem
 
 To spatially arrange the data, a python package called DeepInsight was used. It employs dimensionality reduction techniques to produce images of the microbial community data. It goes through every row in an input matrix and produces an image representation of it. 
 
-![Image1](./media/Graph_1.png)
-![Image2](./media/Graph_2.png)
-![Image2](./media/Graph_3.png)
+![Image1](./media/Final Exam Plot 1.png)
+![Image2](./media/Final Project plot 2.png)
+![Image2](./media/Final Project plot 3.png)
 
 These Images were saved as NumPy arrays and loaded in R. The first step involving R in this project was the loading and pre-processing of the data. The packages used in R to develop this network are based on Python libraries so they are a little bit different to work with compared to your typical R package. 
 
@@ -33,6 +33,108 @@ These Images were saved as NumPy arrays and loaded in R. The first step involvin
 
 The next couple of functions go through the two directories in the data_directory and process each file. On each file, they take the trial number, determine if it’s antagonistic or stochastic, get the resident input, donor output, sample number, and append it to a data frame. 
 
+
+``` r
+suppressWarnings(library(tidyverse))
+library(ggplot2)
+library(knitr)
+
+
+Final_Project_Data <- read.csv("C:/Users/Owner/Desktop/Biol 3100/OStuart0608.github.io/IHME_GBD_2010_MORTALITY_AGE_SPECIFIC_BY_COUNTRY_1970_2010 (1).csv")
+view(Final_Project_Data)
+
+
+suppressWarnings(Final_Project_Data1 <- Final_Project_Data %>%
+  filter(Country.Name == c('Australia', 'Brazil', 'Central Africa', 'Canada', 'China', 'France', 'United Kingdom', 'Japan', 'Mexico', 'United States')) %>%
+  select(-Country.Code) %>%
+  view())
+
+
+# Clean the Number.of.Deaths column (remove commas and convert to numeric)
+Final_Project_Data2 <- aggregate(Number.of.Deaths ~ Country.Name, data = Final_Project_Data1, FUN = max)
+view(Final_Project_Data2) 
+
+
+sapply(Final_Project_Data2, class)
+```
+
+```
+##     Country.Name Number.of.Deaths 
+##      "character"      "character"
+```
+
+``` r
+Final_Project_Data2$Number.of.Deaths <- as.numeric(gsub(",", "", Final_Project_Data2$Number.of.Deaths))
+
+# Create a bar plot
+
+ggplot(Final_Project_Data2, aes(x = Country.Name, y = Number.of.Deaths)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  labs(title = "Number of Deaths by Country", x = "Country", y = " Max Number of Deaths") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+![](BIOL-3100-Final_files/figure-html/Procces_data-1.png)<!-- -->
+
+``` r
+## Code for 2nd plot on website
+
+
+Final_Project_Data3 <- aggregate(Number.of.Deaths ~ Year, data = Final_Project_Data1, FUN = max)
+view(Final_Project_Data3) 
+
+
+sapply(Final_Project_Data3, class)
+```
+
+```
+##             Year Number.of.Deaths 
+##        "integer"      "character"
+```
+
+``` r
+Final_Project_Data3$Number.of.Deaths <- as.numeric(gsub(",", "", Final_Project_Data3$Number.of.Deaths))
+
+# Create a bar plot
+
+ggplot(Final_Project_Data3, aes(x = Year, y = Number.of.Deaths)) +
+  geom_bar(stat = "identity", fill = "lightgreen") +
+  labs(title = " Max Number of Deaths Per Year", x = "Year", y = " Max Number of Deaths") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+![](BIOL-3100-Final_files/figure-html/Procces_data-2.png)<!-- -->
+
+``` r
+## Code for third graph on website
+
+Final_Project_Data4 <- aggregate(Number.of.Deaths ~ Sex, data = Final_Project_Data1, FUN = max)
+view(Final_Project_Data4) 
+
+
+sapply(Final_Project_Data4, class)
+```
+
+```
+##              Sex Number.of.Deaths 
+##      "character"      "character"
+```
+
+``` r
+Final_Project_Data4$Number.of.Deaths <- as.numeric(gsub(",", "", Final_Project_Data4$Number.of.Deaths))
+
+# Create a bar plot
+
+ggplot(Final_Project_Data4, aes(x = Sex, y = Number.of.Deaths)) +
+  geom_bar(stat = "identity", fill = "brown1") +
+  labs(title = " Max Number of Deaths Per Sex", x = "Sex", y = " Max Number of Deaths") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+![](BIOL-3100-Final_files/figure-html/Procces_data-3.png)<!-- -->
 
 ``` r
 process_array <- function(file1, file2){
