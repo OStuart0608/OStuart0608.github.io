@@ -1,5 +1,5 @@
 ---
-title: "Project: CNN for Microbial Community Assembly Classification"
+title: "Project: Global Burden of Disease Death Rates for Countries from 1970-2010"
 output: 
   html_document:
     keep_md: true
@@ -12,28 +12,25 @@ knitr::opts_chunk$set(echo = FALSE)
 
 ## Introduction
 
-This purpose of this project is to look at, and interpret a data-set collected between 1970-2010 that looks specifically at Death rates per county in that time span using R. Futhermore, it will use that dataset to predict future death rates for each country.
+This purpose of this project is to look at, and interpret a data-set collected between 1970-2010 that looks specifically at Death rates per county in that time span using R. Furthermore, it will use that data set to predict future death rates for each country.
 
 ## Background
 
-This data is taken from the Institute For Health Metrics and Evaluation. The data was collected to look at the Global Burden of Disease (GBD). This data was the largest and most complete study dont in order to determine the health loss across the world over time so health systems could be improved and effectivly eliminate disparities. 
+This data is taken from the Institute For Health Metrics and Evaluation. The data was collected to look at the Global Burden of Disease (GBD). This data was the largest and most complete study in order to determine the health loss across the world over time so health systems could be improved and effectively eliminate disparities. 
 
 
 ## Data
 
-The data generated for this project was using an R package called CommunityAssemblR. In this project, it was used to generate matrices of microbial communities with antagonistic and stochastic processes at play. For each, it generates a resident community and then a donor difference matrix. The donor difference matrix illustrates the difference in the donor microbial community. This data had to be preprocessed as it was not spatially related.
+The data generated for this project was using R packages called Tidyverse and ggplot2. For this project, Tidyverse was used to clean up the data and make it easier to understand as well as be to able to present. ggplot2 was used for this project in order to generate plots that would accurately show the data and be able to interpret the data. For each of the graphs shown below the max number of deaths was calculated for specific countries across the world in order to show disparities between the countries. Additionally, the max number of deaths is shown between the time period of 1970-2010. Furthermore, A plot was generated to show the differences in the number of deaths between male and females in the designated time period. 
 
-To spatially arrange the data, a python package called DeepInsight was used. It employs dimensionality reduction techniques to produce images of the microbial community data. It goes through every row in an input matrix and produces an image representation of it. 
+
+ 
 
 ![Image1](./media/Final Exam Plot 1.png)
 ![Image2](./media/Final Project plot 2.png)
 ![Image2](./media/Final Project plot 3.png)
 
-These Images were saved as NumPy arrays and loaded in R. The first step involving R in this project was the loading and pre-processing of the data. The packages used in R to develop this network are based on Python libraries so they are a little bit different to work with compared to your typical R package. 
-
-
-
-The next couple of functions go through the two directories in the data_directory and process each file. On each file, they take the trial number, determine if it’s antagonistic or stochastic, get the resident input, donor output, sample number, and append it to a data frame. 
+These Images were saved as PNG's and loaded in R markdown. The first step involving R in this project was the loading and pre-processing of the data.The following lines of code were used in a R project file in order to first look at, filter, clean, plot, and interpret the data. 
 
 ```{r Procces_data, echo=TRUE, message=FALSE}
 suppressWarnings(library(tidyverse))
@@ -109,31 +106,79 @@ ggplot(Final_Project_Data4, aes(x = Sex, y = Number.of.Deaths)) +
 
 ```
 
-The output of these functions is further processed with the following lines of code. They remove NA’s, shuffle the dataset, split it into training and testing. They also one-hot encode the antagonistic and stochastic labels and transform the data into matrices with the appropriate dimensions.
+The output of these functions is further processed with the following lines of code. They show statistical models of the data to show what factors impacted the death rates most significantly, and generated predictions on those values. 
 
-```{r preprocess dataset, echo=FALSE, message=FALSE}
+```{r preprocess dataset, echo=TRUE, message=FALSE}
 
-```{r  train_graph,echo=FALSE, message=FALSE}
-htmltools::includeHTML("./media/graph.html")
+Final_Project_Data <- read.csv("C:/Users/Owner/Desktop/Biol 3100/OStuart0608.github.io/IHME_GBD_2010_MORTALITY_AGE_SPECIFIC_BY_COUNTRY_1970_2010 (1).csv")
+view(Final_Project_Data)
+
+
+
+Final_Project_Data5 <- Final_Project_Data1 %>%
+    mutate(Number.of.Deaths = as.numeric(gsub(",", "", Number.of.Deaths)),
+           Death.Rate.Per.100.000 = as.numeric(gsub(",", "", Death.Rate.Per.100.000))) %>%
+    view()
+
+suppressWarnings(Final_Project_Data6 <- Final_Project_Data5 %>%
+  filter(Country.Name == c('Australia', 'Brazil', 'Central Africa', 'Canada', 'China', 'France', 'United Kingdom', 'Japan', 'Mexico', 'United States')) %>%
+  view())
+
+## Creating comparison models
+Final_Project_mod <- glm(data = Final_Project_Data6,
+                  formula = Death.Rate.Per.100.000 ~ Country.Name + Year)
+summary(Final_Project_mod)
+
+
+
+Final_Project_mod1 <- glm(data = Final_Project_Data6,
+                         formula = Death.Rate.Per.100.000 ~ Country.Name + Age.Group)
+summary(Final_Project_mod1)
+
+
+
+Final_Project_mod2 <- glm(data = Final_Project_Data6,
+                          formula = Death.Rate.Per.100.000 ~ Country.Name  + Sex)
+summary(Final_Project_mod2)
+
+
+Final_Project_mod3 <- glm(data = Final_Project_Data6,
+                          formula = Death.Rate.Per.100.000 ~ Country.Name  + Year + Age.Group + Sex)
+summary(Final_Project_mod3)
+
+
+## Generating table of statistical values
+library(broom)
+
+broom::tidy(Final_Project_mod3) 
+
 ```
 
-### On Testing Data
+### On Testing Models
+![Image4](./media/Final Project Model Plot.png)
 
-```{r testing_data, echo=FALSE, message=TRUE}
-metrics <- c("accuracy", "f1_score", "loss", "precision", "recall")
-values <- c(0.499, 0.666, 0.693, 0.499, 0.499)
-df <- data.frame(metrics, values)
+```{r testing_data, echo=FALSE, message=FALSE, warning=FALSE}
+library(modelr)
+library(dplyr)
+library(broom)
+library(kableExtra)
+library(easystats)
+Final_Project_Predictions <- add_predictions(Final_Project_Data6, Final_Project_mod3)
 
-knitr::kable((df), "simple")
+view(Final_Project_Predictions)
+
+ plot(Final_Project_Predictions$pred, 
+          Final_Project_Predictions$Death.Rate.Per.100.000, 
+          xlab = "Prediction", 
+          ylab = "Death Rate Per 100,000")
+  summary(Final_Project_Predictions)
 
 ```
 
 
 ## Discussion
 
-Overall, the model was able to predict the outcome 49% of the time on the training data. This indicates a large margin for improvement. Limitations of this porject include the training epochs which was set small compared to what is normally done. In addition to this the results were likely limited to due to optimizer selection and model architecture. Other architectures to try could be similar to GoogleNet or RESnet which have shown to be better preforming in some ways. In addition to this, the data could be prepared differently so as to be more evenly distributed amoung the various strengths of antagonism. My results don't indicate any overfiting however, that could change with the adjustment of epochs. In conclusion, my current model wasn't able to successfully preidct the outcome of microbial community processes, however, future iterations will look at adjust key parameters and architectures to deveplop a better predictive model.
-
-Note: Training and working with neural networks is far less documented on R than on python. In addition to this, becuase it still uses python in the background it just ends up being slower than running a network in python. 
+Overall from the data, The highest Number of Deaths came from Canada in 2000 and the relative number of deaths between sexes was somewhat even. From the best model we were able to create and the prediction values the category that seemed to have the most impact was the Year. This makes sense from the data as we expect that as time goes on there is more available resources to help ease the Burden of Disease is countries across the world. Furthermore, From our prediction values it gave our graph an R squared value of 0.435 which indicates that our prediction values do not accurately predict the data for today values. 
 
 
 

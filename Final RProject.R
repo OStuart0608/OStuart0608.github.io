@@ -17,7 +17,26 @@ Final_Project_Data1 <- Final_Project_Data %>%
   select(-Country.Code) %>%
   view()
 
-## code for 1st plot on on my website
+Final_Project_Data1 <- Final_Project_Data
+view(Final_Project_Data1)
+  Final_Project_Data1$Number.of.Deaths <- as.numeric(gsub(",", "", Final_Project_Data1$Number.of.Deaths)) %>%
+  view()
+  
+  sapply(Final_Project_Data5, class)
+
+  Final_Project_Data5 <-  Final_Project_Data1$Number.of.Deaths <- as.numeric(gsub(",", "", Final_Project_Data1$Number.of.Deaths)) %>%
+    view()
+  
+  write.csv(Final_Project_Data1, "Final_Project_Data1.csv", row.names = FALSE)
+  
+  
+  
+  Final_Project_Data5 <- Final_Project_Data1 %>%
+    mutate(Number.of.Deaths = as.numeric(gsub(",", "", Number.of.Deaths)),
+           Death.Rate.Per.100.000 = as.numeric(gsub(",", "", Death.Rate.Per.100.000))) %>%
+    view()
+
+  ## code for 1st plot on on my website
 
 
 
@@ -50,14 +69,64 @@ ggplot(Final_Project_Data2, aes(x = Country.Name, y = Number.of.Deaths)) +
 ## Code for 2nd plot on website
 
 
+
+
+Final_Project_Data3 <- aggregate(Number.of.Deaths ~ Year, data = Final_Project_Data1, FUN = max)
+view(Final_Project_Data3) 
+
+
+sapply(Final_Project_Data3, class)
+
+Final_Project_Data3$Number.of.Deaths <- as.numeric(gsub(",", "", Final_Project_Data3$Number.of.Deaths))
+
+# Create a bar plot
+
+ggplot(Final_Project_Data3, aes(x = Year, y = Number.of.Deaths)) +
+  geom_bar(stat = "identity", fill = "lightgreen") +
+  labs(title = " Max Number of Deaths Per Year", x = "Year", y = " Max Number of Deaths") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+ library(knitr)
+
+
+
+## Code for third graph on website
+
+Final_Project_Data4 <- aggregate(Number.of.Deaths ~ Sex, data = Final_Project_Data1, FUN = max)
+view(Final_Project_Data4) 
+
+
+sapply(Final_Project_Data4, class)
+
+Final_Project_Data4$Number.of.Deaths <- as.numeric(gsub(",", "", Final_Project_Data4$Number.of.Deaths))
+
+# Create a bar plot
+
+ggplot(Final_Project_Data4, aes(x = Sex, y = Number.of.Deaths)) +
+  geom_bar(stat = "identity", fill = "brown1") +
+  labs(title = " Max Number of Deaths Per Sex", x = "Sex", y = " Max Number of Deaths") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+
+
+
+
+
+
+
+
+
+
 Final_Project_Data4<- aggregate(Number.of.Deaths ~ Sex,data = Final_Project_Data1, FUN = max)
-view(Final_Project_Data3)
+view(Final_Project_Data4)
 
 
 as.character(Final_Project_Data3$Year)
 
 
-Final_Project_Data3 %>%
+Final_Project_Data4 %>%
   ggplot(mapping = aes(x = Sex,
                        y = Number.of.Deaths,
   )) + 
